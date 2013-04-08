@@ -1,0 +1,19 @@
+Version 0.2.4:
+
+- snapping of first point of lines allowed (this is related only to lines), after selecting layer and defining of 
+snapping tolerance in Snapping options (Settings -> Snapping Options)
+
+- saving tolerance (level of simplification - value of spinBox) in QSettings
+
+- support for featureForm - possibility to change attributes of feature, "Reuse last entered attribute values" 
+in Digitizing tab of Options (Settings -> Options) is not supported
+
+Version 0.2.5:
+
+- snapping of first point of lines allowed ..., CTRL key has to be pressed
+
+- cleanup
+
+- exchange of values between rubberband and createFeature function mediated with 
+QgsGeometry
+
