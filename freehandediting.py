@@ -158,8 +158,15 @@ class FreehandEditing:
         
         # add attribute fields to feature
         fields = layer.pendingFields()
-        for i in fields:
-            f.addAttribute(i,  provider.defaultValue(i))
+        
+        # vector api change update
+        if QGis.QGIS_VERSION_INT >= 10900:
+            f.initAttributes(fields.count())			
+            for i in range(fields.count()):
+                f.setAttribute(i,provider.defaultValue(i))
+        else:
+			for i in fields:
+				f.addAttribute(i,  provider.defaultValue(i))
         
         if not (settings.value("/qgis/digitizing/disable_enter_attribute_values_dialog").toBool()):
             self.iface.openFeatureForm( layer, f, False)

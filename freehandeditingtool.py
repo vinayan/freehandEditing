@@ -52,10 +52,12 @@ class FreehandEditingTool(QgsMapTool):
         layer = self.canvas.currentLayer()
         gtype = layer.geometryType()
         color = QColor(255,0,0)
-        if self.isPolygon:
-            self.rb = QgsRubberBand(self.canvas, True)
+        if self.isPolygon == True:
+            self.rb = QgsRubberBand(self.canvas, QGis.Polygon)
+            #print "self is a polygon"
         else:
-            self.rb = QgsRubberBand(self.canvas, False)
+            #print "self is not a polygon"
+            self.rb = QgsRubberBand(self.canvas)
             self.rb.setColor(color)
             self.rb.setWidth(1)
         x = event.pos().x()
@@ -86,6 +88,7 @@ class FreehandEditingTool(QgsMapTool):
     def canvasMoveEvent(self,event):
         if not self.rb:return
         self.rb.addPoint(self.toMapCoordinates(event.pos()))
+        #print self.rb.asGeometry().exportToWkt()
   
 
     def canvasReleaseEvent(self,event):
