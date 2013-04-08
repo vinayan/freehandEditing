@@ -1,0 +1,38 @@
+; the next section is mandatory
+[general]
+name=Freehand Editing
+qgisMinimumVersion=1.7
+description=Freehand line/polygon editing
+category=Vector
+version=version 0.2.6
+author=Pavol Kapusta
+email=pavol.kapusta@gmail.com
+; end of mandatory metadata
+
+; start of optional metadata
+changelog=
+    0.2.4: snapping of first point of lines allowed (this is related only to lines), after selecting layer and defining of 
+           snapping tolerance in Snapping options (Settings -> Snapping Options)
+    0.2.5: - snapping of first point of lines allowed ..., CTRL key has to be pressed
+           - cleanup
+           - exchange of values between rubberband and createFeature function mediated with QgsGeometry
+    0.2.6: added metadata.txt to work with 2.0 version
+
+
+; tags are in comma separated value format, spaces are allowed
+tags=digitizing,vector
+
+; these metadata can be empty
+; in a future version of the web application it will
+; be probably possible to create a project on redmine
+; if they are not filled
+homepage=http://hub.qgis.org/projects/freehandediting
+tracker=http://hub.qgis.org/projects/freehandediting/issues
+repository=https://github.com/vinayan/freehandEditing
+icon=icon.png
+
+; experimental flag
+experimental=False
+
+; deprecated flag (applies to the whole plugin and not only to the uploaded version)
+deprecated=False
