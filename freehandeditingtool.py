@@ -33,10 +33,10 @@ class FreehandEditingTool(QgsMapTool):
                                        "    ++.....+    ",
                                        "      ++.++     ",
                                        "       +.+      "]))
-                                  
- 
 
-    
+
+
+
 
     def keyPressEvent(self,  event):
         if event.key() == Qt.Key_Control:
@@ -46,8 +46,8 @@ class FreehandEditingTool(QgsMapTool):
     def keyReleaseEvent(self,  event):
         if event.key() == Qt.Key_Control:
             self.mCtrl = False
-    
-    
+
+
     def canvasPressEvent(self,event):
         layer = self.canvas.currentLayer()
         gtype = layer.geometryType()
@@ -76,42 +76,42 @@ class FreehandEditingTool(QgsMapTool):
                     else:
                         point = self.toLayerCoordinates(layer,event.pos())
             else:
-                point = self.toLayerCoordinates(layer,event.pos()) 
+                point = self.toLayerCoordinates(layer,event.pos())
             pointMap = self.toMapCoordinates(layer, point)
             self.rb.addPoint(pointMap)
         else:
             point = self.toLayerCoordinates(layer,event.pos())
             pointMap = self.toMapCoordinates(layer, point)
             self.rb.addPoint(pointMap)
-    
-    
+
+
     def canvasMoveEvent(self,event):
         if not self.rb:return
         self.rb.addPoint(self.toMapCoordinates(event.pos()))
         #print self.rb.asGeometry().exportToWkt()
-  
+
 
     def canvasReleaseEvent(self,event):
         if not self.rb:return
         if self.rb.numberOfVertices() > 2:
             geom = self.rb.asGeometry()
             self.emit(SIGNAL("rbFinished(PyQt_PyObject)"), geom)
-   
+
         self.rb.reset()
         self.rb=None
-       
+
         # reset rubberband and refresh the canvas
         if self.type == 1:
             self.isPolygon = False
         else:
             self.isPolygon = True
-        
+
         self.canvas.refresh()
 
 
     def showSettingsWarning(self):
         pass
-    
+
     def activate(self):
         self.canvas.setCursor(self.cursor)
         # Check whether Geometry is a Line or a Polygon
@@ -123,16 +123,16 @@ class FreehandEditingTool(QgsMapTool):
             self.isPolygon = False
         else:
             self.isPolygon = True
-        
+
     def deactivate(self):
         pass
 
     def isZoomTool(self):
         return False
-  
+
     def isTransient(self):
         return False
-    
+
     def isEditTool(self):
         return True
 
