@@ -69,13 +69,14 @@ class FreehandEditing:
         self.iface.editMenu().addAction(self.freehand_edit)
 
         self.spinBox = QDoubleSpinBox(self.iface.mainWindow())
-        self.spinBox.setDecimals(2)
-        self.spinBox.setMinimum(0.00)
-        self.spinBox.setMaximum(5.00)
-        self.spinBox.setSingleStep(0.10)
-        toleranceval = settings.value("/freehandEdit/tolerance", 0.00, type=float)
+        self.spinBox.setDecimals(3)
+        self.spinBox.setMinimum(0.000)
+        self.spinBox.setMaximum(5.000)
+        self.spinBox.setSingleStep(0.100)
+        toleranceval = \
+            settings.value("/freehandEdit/tolerance", 0.000, type=float)
         if not toleranceval:
-           settings.setValue("/freehandEdit/tolerance", 0.00)
+            settings.setValue("/freehandEdit/tolerance", 0.000)
         self.spinBox.setValue(toleranceval)
         self.spinBoxAction = \
             self.iface.digitizeToolBar().addWidget(self.spinBox)
@@ -151,9 +152,10 @@ class FreehandEditing:
         f = QgsFeature()
 
         if layer.crs().projectionAcronym() == "longlat":
-            tolerance = 0.00
+            tolerance = 0.000
         else:
-            tolerance = settings.value("/freehandEdit/tolerance", 0.00, type=float)
+            tolerance = settings.value("/freehandEdit/tolerance",
+                                       0.000, type=float)
 
         #On the Fly reprojection.
         if layerCRSSrsid != projectCRSSrsid:
