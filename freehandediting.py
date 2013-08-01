@@ -54,6 +54,7 @@ class FreehandEditing:
       # Save reference to the QGIS interface
         self.iface = iface
         self.canvas = self.iface.mapCanvas()
+        self.active = False
 
     def initGui(self):
         settings = QSettings()
@@ -82,10 +83,10 @@ class FreehandEditing:
         self.spinBoxAction.setEnabled(False)
 
         # Connect to signals for button behaviour
-        QObject.connect(self.freehand_edit,  SIGNAL("activated()"),  self.freehandediting)
-        QObject.connect(self.iface, SIGNAL("currentLayerChanged(QgsMapLayer*)"), self.toggle)
-        QObject.connect(self.canvas, SIGNAL("mapToolSet(QgsMapTool*)"), self.deactivate)
-        QObject.connect(self.spinBox,  SIGNAL("valueChanged(double)"),  self.tolerancesettings)
+        self.freehand_edit.activated.connect(self.freehandediting)
+        self.iface.currentLayerChanged['QgsMapLayer*'].connect(self.toggle)
+        self.canvas.mapToolSet['QgsMapTool*'].connect(self.deactivate)
+        self.spinBox.valueChanged[float].connect(self.tolerancesettings)
 
         # Get the tool
         self.tool = FreehandEditingTool(self.canvas)
@@ -97,37 +98,52 @@ class FreehandEditing:
     def freehandediting(self):
         self.canvas.setMapTool(self.tool)
         self.freehand_edit.setChecked(True)
-
-        QObject.connect(self.tool, SIGNAL("rbFinished(PyQt_PyObject)"), self.createFeature)
-
+        self.tool.rbFinished['QgsGeometry*'].connect(self.createFeature)
+        self.active = True
 
     def toggle(self):
         mc = self.canvas
         layer = mc.currentLayer()
+        if layer is None:
+            return
 
         #Decide whether the plugin button/menu is enabled or disabled
-        if layer <> None:
-            if layer.isEditable() and (layer.geometryType() == 1 or layer.geometryType() == 2) and (layer.crs().projectionAcronym() == "longlat"):
-                self.freehand_edit.setEnabled(True)
-                self.spinBoxAction.setEnabled(False)
-                QObject.connect(layer,SIGNAL("editingStopped()"),self.toggle)
-                QObject.disconnect(layer,SIGNAL("editingStarted()"),self.toggle)
-            elif layer.isEditable() and (layer.geometryType() == 1 or layer.geometryType() == 2) and (layer.crs().projectionAcronym() != "longlat"):
-                self.freehand_edit.setEnabled(True)
-                self.spinBoxAction.setEnabled(True)
-                QObject.connect(layer,SIGNAL("editingStopped()"),self.toggle)
-                QObject.disconnect(layer,SIGNAL("editingStarted()"),self.toggle)
-            else:
-                self.freehand_edit.setEnabled(False)
-                self.spinBoxAction.setEnabled(False)
-                QObject.connect(layer,SIGNAL("editingStarted()"),self.toggle)
-                QObject.disconnect(layer,SIGNAL("editingStopped()"),self.toggle)
-
+        if (layer.isEditable() and (layer.geometryType() == QGis.Line or
+                                    layer.geometryType() == QGis.Polygon)):
+            self.freehand_edit.setEnabled(True)
+            self.spinBoxAction.setEnabled(
+                layer.crs().projectionAcronym() != "longlat")
+            try:  # remove any existing connection first
+                layer.editingStopped.disconnect(self.toggle)
+            except TypeError:  # missing connection
+                pass
+            layer.editingStopped.connect(self.toggle)
+            try:
+                layer.editingStarted.disconnect(self.toggle)
+            except TypeError:  # missing connection
+                pass
+        else:
+            self.freehand_edit.setEnabled(False)
+            self.spinBoxAction.setEnabled(False)
+            if (layer.type() == QgsMapLayer.VectorLayer and
+                    (layer.geometryType() == QGis.Line or
+                     layer.geometryType() == QGis.Polygon)):
+                try:  # remove any existing connection first
+                    layer.editingStarted.disconnect(self.toggle)
+                except TypeError:  # missing connection
+                    pass
+                layer.editingStarted.connect(self.toggle)
+                try:
+                    layer.editingStopped.disconnect(self.toggle)
+                except TypeError:  # missing connection
+                    pass
 
     def createFeature(self, geom):
         settings = QSettings()
         mc = self.canvas
         layer = mc.currentLayer()
+        if layer is None:
+            return
         renderer = mc.mapRenderer()
         layerCRSSrsid = layer.crs().srsid()
         projectCRSSrsid = renderer.destinationCrs().srsid()
@@ -180,11 +196,11 @@ class FreehandEditing:
         layer.addFeature(f)
         layer.endEditCommand()
 
-
     def deactivate(self):
         self.freehand_edit.setChecked(False)
-        QObject.disconnect(self.tool, SIGNAL("rbFinished(PyQt_PyObject)"), self.createFeature)
-
+        if self.active:
+            self.tool.rbFinished['QgsGeometry*'].disconnect(self.createFeature)
+        self.active = False
 
     def unload(self):
         self.iface.digitizeToolBar().removeAction(self.freehand_edit)

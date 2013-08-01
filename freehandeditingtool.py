@@ -7,6 +7,9 @@ from qgis.gui import *
 
 
 class FreehandEditingTool(QgsMapTool):
+
+    rbFinished = pyqtSignal('QgsGeometry*')
+
     def __init__(self, canvas):
         QgsMapTool.__init__(self, canvas)
         self.canvas = canvas
@@ -92,17 +95,12 @@ class FreehandEditingTool(QgsMapTool):
             return
         if self.rb.numberOfVertices() > 2:
             geom = self.rb.asGeometry()
-            self.emit(SIGNAL("rbFinished(PyQt_PyObject)"), geom)
-
-        self.rb.reset()
-        self.rb=None
+            self.rbFinished.emit(geom)
 
         # reset rubberband and refresh the canvas
-        if self.type == 1:
-            self.isPolygon = False
-        else:
-            self.isPolygon = True
-
+        self.rb.reset()
+        self.rb = None
+        self.isPolygon = (self.type != QGis.Line)
         self.canvas.refresh()
 
     def showSettingsWarning(self):
@@ -114,11 +112,7 @@ class FreehandEditingTool(QgsMapTool):
         # Check whether Geometry is a Line or a Polygon
         layer = mc.currentLayer()
         self.type = layer.geometryType()
-        self.isPolygon = True
-        if self.type == 1:
-            self.isPolygon = False
-        else:
-            self.isPolygon = True
+        self.isPolygon = (self.type != QGis.Line)
 
     def deactivate(self):
         pass
@@ -131,4 +125,3 @@ class FreehandEditingTool(QgsMapTool):
 
     def isEditTool(self):
         return True
-
