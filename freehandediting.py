@@ -8,7 +8,8 @@
 # Code adopted/adapted from:
 #
 # 'SelectPlus Menu Plugin', Copyright (C) Barry Rowlingson
-# 'Numerical Vertex Edit Plugin' and 'traceDigitize' plugin, Copyright (C) Cédric Möri
+# 'Numerical Vertex Edit Plugin' and 'traceDigitize' plugin,
+#  Copyright (C) Cédric Möri
 #
 # Spinbox idea adopted from:
 # 'Improved polygon capturing' plugin, Copyright (C) Adrian Weber
@@ -46,7 +47,7 @@ from freehandeditingtool import FreehandEditingTool
 # initialize Qt resources from file resources.py
 import resources
 
-# Our main class for the plugin
+
 class FreehandEditing:
 
     def __init__(self, iface):
@@ -57,7 +58,9 @@ class FreehandEditing:
     def initGui(self):
         settings = QSettings()
         # Create action
-        self.freehand_edit = QAction(QIcon(":/plugins/freehandEditing/icon.png"),  "Freehand editing",  self.iface.mainWindow())
+        self.freehand_edit = \
+            QAction(QIcon(":/plugins/freehandEditing/icon.png"),
+                    "Freehand editing", self.iface.mainWindow())
         self.freehand_edit.setEnabled(False)
         self.freehand_edit.setCheckable(True)
         # Add toolbar button and menu item
@@ -73,7 +76,8 @@ class FreehandEditing:
         if not toleranceval:
            settings.setValue("/freehandEdit/tolerance", 0.00)
         self.spinBox.setValue(toleranceval)
-        self.spinBoxAction = self.iface.digitizeToolBar().addWidget(self.spinBox)
+        self.spinBoxAction = \
+            self.iface.digitizeToolBar().addWidget(self.spinBox)
         self.spinBox.setToolTip("Tolerance. Level of simplification.")
         self.spinBoxAction.setEnabled(False)
 
@@ -84,13 +88,11 @@ class FreehandEditing:
         QObject.connect(self.spinBox,  SIGNAL("valueChanged(double)"),  self.tolerancesettings)
 
         # Get the tool
-        self.tool = FreehandEditingTool( self.canvas )
-
+        self.tool = FreehandEditingTool(self.canvas)
 
     def tolerancesettings(self):
         settings = QSettings()
         settings.setValue("/freehandEdit/tolerance", self.spinBox.value())
-
 
     def freehandediting(self):
         self.canvas.setMapTool(self.tool)
@@ -132,7 +134,6 @@ class FreehandEditing:
         provider = layer.dataProvider()
         f = QgsFeature()
 
-
         if layer.crs().projectionAcronym() == "longlat":
             tolerance = 0.00
         else:
@@ -140,37 +141,40 @@ class FreehandEditing:
 
         #On the Fly reprojection.
         if layerCRSSrsid != projectCRSSrsid:
-            geom.transform(QgsCoordinateTransform(projectCRSSrsid, layerCRSSrsid))
-
+            geom.transform(QgsCoordinateTransform(projectCRSSrsid,
+                                                  layerCRSSrsid))
         s = geom.simplify(tolerance)
 
         #validate geometry
         if not (s.validateGeometry()):
             f.setGeometry(s)
         else:
-            reply = QMessageBox.question(self.iface.mainWindow(), 'Feature not valid',
-            "The geometry of the feature you just added isn't valid. Do you want to use it anyway?",
-            QMessageBox.Yes, QMessageBox.No)
+            reply = QMessageBox.question(
+                self.iface.mainWindow(),
+                'Feature not valid',
+                "The geometry of the feature you just added isn't valid."
+                "Do you want to use it anyway?",
+                QMessageBox.Yes, QMessageBox.No)
             if reply == QMessageBox.Yes:
                 f.setGeometry(s)
             else:
-                return False
+                return
 
         # add attribute fields to feature
         fields = layer.pendingFields()
-
-        # vector api change update
-        if QGis.QGIS_VERSION_INT >= 10900:
+        if QGis.QGIS_VERSION_INT >= 10900:  # vector api change update
             f.initAttributes(fields.count())
             for i in range(fields.count()):
                 if provider.defaultValue(i):
                     f.setAttribute(i, provider.defaultValue(i))
         else:
             for i in fields:
-              f.addAttribute(i, provider.defaultValue(i))
+                f.addAttribute(i, provider.defaultValue(i))
 
-        if not (settings.value("/qgis/digitizing/disable_enter_attribute_values_dialog", False, type=bool)):
-            self.iface.openFeatureForm( layer, f, False)
+        if not (settings.value(
+                "/qgis/digitizing/disable_enter_attribute_values_dialog",
+                False, type=bool)):
+            self.iface.openFeatureForm(layer, f, False)
 
         layer.beginEditCommand("Feature added")
         layer.addFeature(f)
