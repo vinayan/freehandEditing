@@ -15,6 +15,7 @@ class FreehandEditingTool(QgsMapTool):
         self.canvas = canvas
         self.rb = None
         self.mCtrl = None
+        self.drawing = False
         #our own fancy cursor
         self.cursor = QCursor(QPixmap(["16 16 3 1",
                                        "      c None",
@@ -46,7 +47,15 @@ class FreehandEditingTool(QgsMapTool):
             self.mCtrl = False
 
     def canvasPressEvent(self, event):
+        if self.drawing:
+            # ignore secondary canvasPressEvents if already drag-drawing
+            # NOTE: canvasReleaseEvent will still occur (ensures rb is deleted)
+            # click on multi-button input device will halt drag-drawing
+            return
         layer = self.canvas.currentLayer()
+        if not layer:
+            return
+        self.drawing = True
         gtype = layer.geometryType()
         color = QColor(255, 0, 0)
         if self.isPolygon:
@@ -91,6 +100,7 @@ class FreehandEditingTool(QgsMapTool):
         #print self.rb.asGeometry().exportToWkt()
 
     def canvasReleaseEvent(self, event):
+        self.drawing = False
         if not self.rb:
             return
         if self.rb.numberOfVertices() > 2:
@@ -112,6 +122,7 @@ class FreehandEditingTool(QgsMapTool):
         # Check whether Geometry is a Line or a Polygon
         layer = mc.currentLayer()
         self.type = layer.geometryType()
+        # toolbar button is only active with editable line and polygon layers
         self.isPolygon = (self.type != QGis.Line)
 
     def deactivate(self):
