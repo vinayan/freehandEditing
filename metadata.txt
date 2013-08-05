@@ -1,23 +1,29 @@
 ; the next section is mandatory
 [general]
 name=Freehand Editing
-qgisMinimumVersion=1.7
+qgisMinimumVersion=2.0
 description=Freehand line/polygon editing
 category=Vector
-version=version 0.2.6
+version=version 0.3.0
 author=Pavol Kapusta
 email=pavol.kapusta@gmail.com
 ; end of mandatory metadata
 
 ; start of optional metadata
 changelog=
-    0.2.4: snapping of first point of lines allowed (this is related only to lines), after selecting layer and defining of 
+    0.2.4: snapping of first point of lines allowed (this is related only to lines), after selecting layer and defining of
            snapping tolerance in Snapping options (Settings -> Snapping Options)
     0.2.5: - snapping of first point of lines allowed ..., CTRL key has to be pressed
            - cleanup
            - exchange of values between rubberband and createFeature function mediated with QgsGeometry
     0.2.6: added metadata.txt to work with 2.0 version,updated calls to QgsRubberband's deprecated isPolygon method
-
+    0.3.0: update to new PyQt string API
+           update to new-style PyQt connections
+           add check for invalid (possibly missing) provider field default
+           increase tolerance resolution to 3 decimal places (for sub-meter map scales)
+           add ability to halt drag-drawing with a secondary click
+           bring code inline with PEP 8 style
+           larrys@dakotacarto.com
 
 ; tags are in comma separated value format, spaces are allowed
 tags=digitizing,vector
