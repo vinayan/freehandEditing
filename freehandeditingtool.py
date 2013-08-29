@@ -16,6 +16,7 @@ class FreehandEditingTool(QgsMapTool):
         self.rb = None
         self.mCtrl = None
         self.drawing = False
+        self.ignoreclick = False
         #our own fancy cursor
         self.cursor = QCursor(QPixmap(["16 16 3 1",
                                        "      c None",
@@ -47,7 +48,7 @@ class FreehandEditingTool(QgsMapTool):
             self.mCtrl = False
 
     def canvasPressEvent(self, event):
-        if self.drawing:
+        if self.ignoreclick or self.drawing:
             # ignore secondary canvasPressEvents if already drag-drawing
             # NOTE: canvasReleaseEvent will still occur (ensures rb is deleted)
             # click on multi-button input device will halt drag-drawing
@@ -94,12 +95,14 @@ class FreehandEditingTool(QgsMapTool):
             self.rb.addPoint(pointMap)
 
     def canvasMoveEvent(self, event):
-        if not self.rb:
+        if self.ignoreclick or not self.rb:
             return
         self.rb.addPoint(self.toMapCoordinates(event.pos()))
         #print self.rb.asGeometry().exportToWkt()
 
     def canvasReleaseEvent(self, event):
+        if self.ignoreclick:
+            return
         self.drawing = False
         if not self.rb:
             return
@@ -112,6 +115,10 @@ class FreehandEditingTool(QgsMapTool):
         self.rb = None
         self.isPolygon = (self.type != QGis.Line)
         self.canvas.refresh()
+
+    def setIgnoreClick(self, ignore):
+        """Used to keep the tool from registering clicks during modal dialogs"""
+        self.ignoreclick = ignore
 
     def showSettingsWarning(self):
         pass

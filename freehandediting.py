@@ -189,14 +189,21 @@ class FreehandEditing:
             for i in fields:
                 f.addAttribute(i, provider.defaultValue(i))
 
-        if not (settings.value(
+        layer.beginEditCommand("Feature added")
+        if (settings.value(
                 "/qgis/digitizing/disable_enter_attribute_values_dialog",
                 False, type=bool)):
-            self.iface.openFeatureForm(layer, f, False)
-
-        layer.beginEditCommand("Feature added")
-        layer.addFeature(f)
-        layer.endEditCommand()
+            layer.addFeature(f)
+            layer.endEditCommand()
+        else:
+            dlg = self.iface.getFeatureForm(layer, f)
+            self.tool.setIgnoreClick(True)
+            if dlg.exec_():
+                layer.addFeature(f)
+                layer.endEditCommand()
+            else:
+                layer.destroyEditCommand()
+            self.tool.setIgnoreClick(False)
 
     def deactivate(self):
         self.freehand_edit.setChecked(False)
