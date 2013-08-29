@@ -30,6 +30,8 @@ changelog=
              from registering clicks when they occur outside of a modal dialog
            fix tool not switching to correct geometry when switching between
              layers in edit mode
+           add some transparency to tool's rubberband and set color for polygon
+             similar to that of main digitizing tools
            larrys@dakotacarto.com
 
 ; tags are in comma separated value format, spaces are allowed

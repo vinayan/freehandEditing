@@ -57,16 +57,17 @@ class FreehandEditingTool(QgsMapTool):
         if not layer:
             return
         self.drawing = True
-        color = QColor(255, 0, 0)
         self.type = layer.geometryType()
         self.isPolygon = (self.type != QGis.Line)
         if self.isPolygon:
             #print "self is a polygon"
             self.rb = QgsRubberBand(self.canvas, QGis.Polygon)
+            self.rb.setColor(QColor(255, 0, 0, 63))
+            self.rb.setWidth(2)
         else:
             #print "self is not a polygon"
             self.rb = QgsRubberBand(self.canvas)
-            self.rb.setColor(color)
+            self.rb.setColor(QColor(255, 0, 0, 150))
             self.rb.setWidth(1)
         x = event.pos().x()
         y = event.pos().y()
