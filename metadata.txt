@@ -28,6 +28,8 @@ changelog=
              of feature on Cancel (same behavior as main digitizing tools)
            add property to ignore clicks when tool is active, keeping the tool
              from registering clicks when they occur outside of a modal dialog
+           fix tool not switching to correct geometry when switching between
+             layers in edit mode
            larrys@dakotacarto.com
 
 ; tags are in comma separated value format, spaces are allowed

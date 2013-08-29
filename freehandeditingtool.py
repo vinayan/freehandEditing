@@ -57,8 +57,9 @@ class FreehandEditingTool(QgsMapTool):
         if not layer:
             return
         self.drawing = True
-        gtype = layer.geometryType()
         color = QColor(255, 0, 0)
+        self.type = layer.geometryType()
+        self.isPolygon = (self.type != QGis.Line)
         if self.isPolygon:
             #print "self is a polygon"
             self.rb = QgsRubberBand(self.canvas, QGis.Polygon)
@@ -69,7 +70,7 @@ class FreehandEditingTool(QgsMapTool):
             self.rb.setWidth(1)
         x = event.pos().x()
         y = event.pos().y()
-        if gtype == 1:
+        if self.isPolygon:
             if self.mCtrl:
                 startingPoint = QPoint(x, y)
                 snapper = QgsMapCanvasSnapper(self.canvas)
